@@ -1,0 +1,8 @@
+{
+    "shell-version": ["3.6.0","3.6.1"], 
+    "uuid": "Alsa-Mixer@so-dicas.info", 
+    "name": "Alsa Mixer", 
+    "original-author": "Victor Aurélio Santos",
+    "url": "http://www.so-dicas.info", 
+    "description": "Alsa Mixer control ALSA output volume."
+}

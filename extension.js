@@ -1,0 +1,128 @@
+/* -*- mode: js2; js2-basic-offset: 4; indent-tabs-mode: nil -*- */
+/*
+ * extension.js
+ * Copyright (C) 2012 Victor Aurélio Santos <admin@so-dicas.info>
+ * 
+ * Alsa Mixer is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Alsa Mixer is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+const St = imports.gi.St;
+const Lang = imports.lang;
+const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+const GLib = imports.gi.GLib;
+const Util = imports.misc.util;
+const Mainloop = imports.mainloop;
+
+const AlsaMixer = new Lang.Class({
+	Name: 'AlsaMixer',
+	Extends: PanelMenu.SystemStatusButton,
+	
+	_init: function(){
+		this.parent('audio-volume-medium', _('Volume'));
+		
+		this.statusIcon = new St.Icon({
+			icon_name: 'audio-volume-medium',
+			style_class: 'system-status-icon'
+		});
+		this.actor.add_actor(this.statusIcon);
+		
+		this.actor.connect('scroll-event', Lang.bind(this, this.Scrolled));
+		
+		this._cVolume = this._getVolume();
+		this._muted = this._cVolume < 1 ? true : false;
+		this._updateIcon(this._cVolume);
+		
+		this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
+		this.pup.connect('value-changed', Lang.bind(this, this.CSlider));
+		this.menu.addMenuItem(this.pup);
+		
+		timer = GLib.timeout_add_seconds(0, 5, Lang.bind(this, function(){
+		    this._cVolume = this._getVolume();
+		    this._updateIcon(this._cVolume);
+		    
+		    return true;
+		}));
+	},
+	
+	_getVolume: function(){
+		let cmd = GLib.spawn_command_line_sync('amixer get Master');
+		let lines = cmd.toString().split("\n");
+		let value = lines[5].toString().split('[')[1].toString().split(']')[0].toString();
+		let in_p = value.substr(0, value.length - 1);
+		
+		return in_p;
+	},
+	
+	_setVolume: function(value){
+		cmd = GLib.spawn_command_line_async('amixer -q set Master ' + value + '%');
+		
+		this._cVolume = value;
+		
+		this._updateIcon(value);
+	},
+	
+	_updateIcon: function(value){
+	    if (this.statusIcon.get_icon_name() != this._getIcon(value)){
+	        let icon = this._getIcon(value);
+		    this.statusIcon.set_icon_name(icon);
+		    this.setIcon(icon);
+		}
+	},
+	
+	_getIcon: function(volume){
+	    let rvalue = 'audio-volume-muted';
+		if (volume < 1){
+			rvalue = 'audio-volume-muted';
+		}
+		else{
+			let num = Math.floor(3 * volume / 100) + 1;
+
+			if (num >= 3)
+				rvalue = 'audio-volume-high';
+			else if(num < 2)
+				rvalue = 'audio-volume-low';
+			else
+				rvalue = 'audio-volume-medium';
+		}
+		return rvalue;
+	},
+	
+	Scrolled: function(){
+		log("Not iplemented yet!!!");
+	},
+	
+	CSlider: function(slider, value){
+		let volume = value * 100;
+		this._setVolume(volume);
+	},
+});
+
+function init(){
+    
+}
+
+let AM;
+let timer = null;
+
+function enable(){
+    AM = new AlsaMixer();
+    Main.panel.addToStatusArea('AlsaMixer', AM);
+}
+
+function disable(){
+    AM.destroy();
+    AM = null;
+}
