@@ -48,8 +48,8 @@ const AlsaMixer = new Lang.Class({
 		this._muted = this._cVolume < 1 ? true : false;
 		this._updateIcon(this._cVolume);
 		
-		this._onSliderId = this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
-		this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
+		this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
+		this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
 		this.menu.addMenuItem(this.pup);
 		
 		this._timeoutId = Mainloop.timeout_add_seconds(1, Lang.bind(this, this._onUpdate));

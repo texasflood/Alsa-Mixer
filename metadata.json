@@ -4,5 +4,6 @@
     "name": "Alsa Mixer", 
     "original-author": "Victor Aurélio Santos",
     "url": "https://github.com/hotvic/Alsa-Mixer/", 
-    "description": "Control ALSA output(Master) volume."
+    "description": "Control ALSA output(Master) volume.",
+    "version": 2
 }
