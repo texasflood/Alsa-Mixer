@@ -3,6 +3,6 @@
     "uuid": "Alsa-Mixer@so-dicas.info", 
     "name": "Alsa Mixer", 
     "original-author": "Victor Aurélio Santos",
-    "url": "http://www.so-dicas.info", 
-    "description": "Alsa Mixer control ALSA output volume."
+    "url": "https://github.com/hotvic/Alsa-Mixer/", 
+    "description": "Control ALSA output(Master) volume."
 }
