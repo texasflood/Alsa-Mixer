@@ -42,13 +42,13 @@ const AlsaMixer = new Lang.Class({
 		});
 		this.actor.add_actor(this.statusIcon);
 		
-		this.actor.connect('scroll-event', Lang.bind(this, this._onScroll));
+		this._onScrollId = this.actor.connect('scroll-event', Lang.bind(this, this._onScroll));
 		
 		this._cVolume = this._getVolume();
 		this._muted = this._cVolume < 1 ? true : false;
 		this._updateIcon(this._cVolume);
 		
-		this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
+		this._onSliderId = this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
 		this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
 		this.menu.addMenuItem(this.pup);
 		
@@ -131,8 +131,8 @@ const AlsaMixer = new Lang.Class({
 	destroy: function(){
 	    this.parent();
 	    Mainloop.remove_source(this._timeoutId);
-	    this.actor.disconnect(this._onScroll);
-	    this.actor.disconnect(this._onSlider);
+	    this.actor.disconnect(this._onScrollId);
+	    this.pup.disconnect(this._onSliderId);
 	},
 });
 
