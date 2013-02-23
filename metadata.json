@@ -1,5 +1,5 @@
 {
-    "shell-version": ["3.6.0","3.6.1","3.6.2"], 
+    "shell-version": ["3.4.2","3.6.0","3.6.1","3.6.2"], 
     "uuid": "Alsa-Mixer@so-dicas.info", 
     "name": "Alsa Mixer", 
     "original-author": "Victor Aurélio Santos",

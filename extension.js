@@ -58,7 +58,7 @@ const AlsaMixer = new Lang.Class({
 	_getVolume: function(){
 		let cmd = GLib.spawn_command_line_sync('amixer get Master');
 		let lines = cmd.toString().split("\n");
-		let value = lines[5].toString().split('[')[1].toString().split(']')[0].toString();
+		let value = lines[4].toString().split('[')[1].toString().split(']')[0].toString();
 		let in_p = value.substr(0, value.length - 1);
 		
 		return in_p;
