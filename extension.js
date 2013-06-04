@@ -1,8 +1,9 @@
-/* -*- mode: js2; js2-basic-offset: 4; indent-tabs-mode: nil -*- */
+/* -*- coding: UTF-8; mode: js2; js2-basic-offset: 4 -*- */
 /*
- * extension.js
- * Copyright (C) 2012 Victor Aurélio Santos <admin@so-dicas.info>
+ * Copyright (C) 2012, 2013 Victor Aurélio Santos <victoraur.santos@gmail.com>
  * 
+ * This file is part of Alsa-Mixer.
+ *
  * Alsa Mixer is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
@@ -33,7 +34,7 @@ const AlsaMixer = new Lang.Class({
 	Name: 'AlsaMixer',
 	Extends: PanelMenu.SystemStatusButton,
 	
-	_init: function(){
+	_init: function() {
 		this.parent('audio-volume-medium', _('Volume'));
 		
 		this.statusIcon = new St.Icon({
@@ -42,50 +43,52 @@ const AlsaMixer = new Lang.Class({
 		});
 		this.actor.add_actor(this.statusIcon);
 		
-		this._onScrollId = this.actor.connect('scroll-event', Lang.bind(this, this._onScroll));
+		this._onScrollId = this.actor.connect('scroll-event',
+            Lang.bind(this, this._onScroll));
 		
 		this._cVolume = this._getVolume();
 		this._muted = this._cVolume < 1 ? true : false;
 		this._updateIcon(this._cVolume);
 		
 		this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
-		this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
+		this._onSliderId = this.pup.connect('value-changed',
+                Lang.bind(this, this._onSlider));
 		this.menu.addMenuItem(this.pup);
 		
-		this._timeoutId = Mainloop.timeout_add_seconds(1, Lang.bind(this, this._onUpdate));
+		this._timeoutId = Mainloop.timeout_add_seconds(1,
+                Lang.bind(this, this._onUpdate));
 	},
 	
-	_getVolume: function(){
-		let cmd = GLib.spawn_command_line_sync('amixer get Master');
-		let lines = cmd.toString().split("\n");
-		let value = lines[4].toString().split('[')[1].toString().split(']')[0].toString();
-		let in_p = value.substr(0, value.length - 1);
-		
-		return in_p;
+	_getVolume: function() {
+		let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Master');
+		let re = /\[(\d{1,2})\%\]/m;
+	    let values = re.exec(cmd[1]);
+
+		return values[1];
 	},
 	
-	_setVolume: function(value){
-		let cmd = GLib.spawn_command_line_async('amixer -q set Master ' + value + '%');
+	_setVolume: function(value) {
+		let cmd = GLib.spawn_command_line_async(
+                'amixer -q set Master %s %%'.format(value));
 		
-		this._cVolume = value;
+        this._cVolume = value;
 		
 		this._updateIcon(value);
 	},
 	
-	_updateIcon: function(value){
-	    if (this.statusIcon.get_icon_name() != this._getIcon(value)){
+	_updateIcon: function(value) {
+	    if (this.statusIcon.get_icon_name() != this._getIcon(value)) {
 	        let icon = this._getIcon(value);
 		    this.statusIcon.set_icon_name(icon);
 		    this.setIcon(icon);
 		}
 	},
 	
-	_getIcon: function(volume){
+	_getIcon: function(volume) {
 	    let rvalue = 'audio-volume-muted';
-		if (volume < 1){
+		if (volume < 1) {
 			rvalue = 'audio-volume-muted';
-		}
-		else{
+		} else {
 			let num = Math.floor(3 * volume / 100) + 1;
 
 			if (num >= 3)
@@ -98,56 +101,57 @@ const AlsaMixer = new Lang.Class({
 		return rvalue;
 	},
 	
-	_onScroll: function(widget, event){
+	_onScroll: function(widget, event) {
 		let di = event.get_scroll_direction();
 		
-		if (di == Clutter.ScrollDirection.DOWN && Number(this._cVolume) > VOLUME_STEP){
+		if (di == Clutter.ScrollDirection.DOWN
+                && Number(this._cVolume) > VOLUME_STEP) {
 		    this._setVolume(Number(this._cVolume) - VOLUME_STEP);
-		}
-		else if (di == Clutter.ScrollDirection.DOWN && Number(this._cVolume) <= VOLUME_STEP){
+		} else if (di == Clutter.ScrollDirection.DOWN
+                && Number(this._cVolume) <= VOLUME_STEP) {
 		    this._setVolume(0);
-		}
-		else if(di == Clutter.ScrollDirection.UP && Number(this._cVolume) < 100 - VOLUME_STEP){
+		} else if(di == Clutter.ScrollDirection.UP
+                && Number(this._cVolume) < 100 - VOLUME_STEP) {
 		    this._setVolume(Number(this._cVolume) + VOLUME_STEP);
-		}
-		else if(di == Clutter.ScrollDirection.UP && Number(this._cVolume) >= 100 - VOLUME_STEP){
+		} else if(di == Clutter.ScrollDirection.UP
+                && Number(this._cVolume) >= 100 - VOLUME_STEP) {
 		    this._setVolume(100);
 		}
 		this.pup.setValue(Number(this._cVolume) / 100);
 	},
 	
-	_onSlider: function(slider, value){
+	_onSlider: function(slider, value) {
 		let volume = value * 100;
 		this._setVolume(volume);
 	},
 	
-	_onUpdate: function(){
+	_onUpdate: function() {
         this._cVolume = this._getVolume();
         this._updateIcon(this._cVolume);
         this.pup.setValue(Number(this._cVolume) / 100);
         return true;
 	},
 	
-	destroy: function(){
+	destroy: function() {
 	    this.parent();
-	    Mainloop.remove_source(this._timeoutId);
+	    Mainloop.source_remove(this._timeoutId);
 	    this.actor.disconnect(this._onScrollId);
 	    this.pup.disconnect(this._onSliderId);
 	},
 });
 
-function init(){
-    
+function init() {
+    // pass
 }
 
-let AM;
+var AM;
 
-function enable(){
+function enable() {
     AM = new AlsaMixer();
     Main.panel.addToStatusArea('AlsaMixer', AM);
 }
 
-function disable(){
+function disable() {
     AM.destroy();
     AM = null;
 }

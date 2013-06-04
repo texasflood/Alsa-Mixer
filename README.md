@@ -19,6 +19,6 @@ cp Alsa-Mixer/metadata.json ~/.local/share/gnome-shell/extensions/Alsa-Mixer\@so
 rm -rf Alsa-Mixer/
 </pre>
 
-Copyright © 2012 - Victor Aurélio Santos
+Copyright © 2012, 2013 - Victor Aurélio Santos
 
 License GPLv3
