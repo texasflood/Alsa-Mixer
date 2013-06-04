@@ -31,113 +31,113 @@ const Mainloop = imports.mainloop;
 const VOLUME_STEP = 5; // Step on scroll, and olny on scroll
 
 const AlsaMixer = new Lang.Class({
-	Name: 'AlsaMixer',
-	Extends: PanelMenu.SystemStatusButton,
-	
-	_init: function() {
-		this.parent('audio-volume-medium', _('Volume'));
-		
-		this.statusIcon = new St.Icon({
-			icon_name: 'audio-volume-medium',
-			style_class: 'status-icon'
-		});
-		this.actor.add_actor(this.statusIcon);
-		
-		this._onScrollId = this.actor.connect('scroll-event',
+    Name: 'AlsaMixer',
+    Extends: PanelMenu.SystemStatusButton,
+    
+    _init: function() {
+        this.parent('audio-volume-medium', _('Volume'));
+        
+        this.statusIcon = new St.Icon({
+            icon_name: 'audio-volume-medium',
+            style_class: 'status-icon'
+        });
+        this.actor.add_actor(this.statusIcon);
+        
+        this._onScrollId = this.actor.connect('scroll-event',
             Lang.bind(this, this._onScroll));
-		
-		this._cVolume = this._getVolume();
-		this._muted = this._cVolume < 1 ? true : false;
-		this._updateIcon(this._cVolume);
-		
-		this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
-		this._onSliderId = this.pup.connect('value-changed',
+        
+        this._cVolume = this._getVolume();
+        this._muted = this._cVolume < 1 ? true : false;
+        this._updateIcon(this._cVolume);
+        
+        this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
+        this._onSliderId = this.pup.connect('value-changed',
                 Lang.bind(this, this._onSlider));
-		this.menu.addMenuItem(this.pup);
-		
-		this._timeoutId = Mainloop.timeout_add_seconds(1,
+        this.menu.addMenuItem(this.pup);
+        
+        this._timeoutId = Mainloop.timeout_add_seconds(1,
                 Lang.bind(this, this._onUpdate));
-	},
-	
-	_getVolume: function() {
-		let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Master');
-		let re = /\[(\d{1,2})\%\]/m;
-	    let values = re.exec(cmd[1]);
+    },
+    
+    _getVolume: function() {
+        let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Master');
+        let re = /\[(\d{1,2})\%\]/m;
+        let values = re.exec(cmd[1]);
 
-		return values[1];
-	},
-	
-	_setVolume: function(value) {
-		let cmd = GLib.spawn_command_line_async(
+        return values[1];
+    },
+    
+    _setVolume: function(value) {
+        let cmd = GLib.spawn_command_line_async(
                 'amixer -q set Master %s %%'.format(value));
-		
+        
         this._cVolume = value;
-		
-		this._updateIcon(value);
-	},
-	
-	_updateIcon: function(value) {
-	    if (this.statusIcon.get_icon_name() != this._getIcon(value)) {
-	        let icon = this._getIcon(value);
-		    this.statusIcon.set_icon_name(icon);
-		    this.setIcon(icon);
-		}
-	},
-	
-	_getIcon: function(volume) {
-	    let rvalue = 'audio-volume-muted';
-		if (volume < 1) {
-			rvalue = 'audio-volume-muted';
-		} else {
-			let num = Math.floor(3 * volume / 100) + 1;
+        
+        this._updateIcon(value);
+    },
+    
+    _updateIcon: function(value) {
+        if (this.statusIcon.get_icon_name() != this._getIcon(value)) {
+            let icon = this._getIcon(value);
+            this.statusIcon.set_icon_name(icon);
+            this.setIcon(icon);
+        }
+    },
+    
+    _getIcon: function(volume) {
+        let rvalue = 'audio-volume-muted';
+        if (volume < 1) {
+            rvalue = 'audio-volume-muted';
+        } else {
+            let num = Math.floor(3 * volume / 100) + 1;
 
-			if (num >= 3)
-				rvalue = 'audio-volume-high';
-			else if(num < 2)
-				rvalue = 'audio-volume-low';
-			else
-				rvalue = 'audio-volume-medium';
-		}
-		return rvalue;
-	},
-	
-	_onScroll: function(widget, event) {
-		let di = event.get_scroll_direction();
-		
-		if (di == Clutter.ScrollDirection.DOWN
+            if (num >= 3)
+                rvalue = 'audio-volume-high';
+            else if(num < 2)
+                rvalue = 'audio-volume-low';
+            else
+                rvalue = 'audio-volume-medium';
+        }
+        return rvalue;
+    },
+    
+    _onScroll: function(widget, event) {
+        let di = event.get_scroll_direction();
+        
+        if (di == Clutter.ScrollDirection.DOWN
                 && Number(this._cVolume) > VOLUME_STEP) {
-		    this._setVolume(Number(this._cVolume) - VOLUME_STEP);
-		} else if (di == Clutter.ScrollDirection.DOWN
+            this._setVolume(Number(this._cVolume) - VOLUME_STEP);
+        } else if (di == Clutter.ScrollDirection.DOWN
                 && Number(this._cVolume) <= VOLUME_STEP) {
-		    this._setVolume(0);
-		} else if(di == Clutter.ScrollDirection.UP
+            this._setVolume(0);
+        } else if(di == Clutter.ScrollDirection.UP
                 && Number(this._cVolume) < 100 - VOLUME_STEP) {
-		    this._setVolume(Number(this._cVolume) + VOLUME_STEP);
-		} else if(di == Clutter.ScrollDirection.UP
+            this._setVolume(Number(this._cVolume) + VOLUME_STEP);
+        } else if(di == Clutter.ScrollDirection.UP
                 && Number(this._cVolume) >= 100 - VOLUME_STEP) {
-		    this._setVolume(100);
-		}
-		this.pup.setValue(Number(this._cVolume) / 100);
-	},
-	
-	_onSlider: function(slider, value) {
-		let volume = value * 100;
-		this._setVolume(volume);
-	},
-	
-	_onUpdate: function() {
+            this._setVolume(100);
+        }
+        this.pup.setValue(Number(this._cVolume) / 100);
+    },
+    
+    _onSlider: function(slider, value) {
+        let volume = value * 100;
+        this._setVolume(volume);
+    },
+    
+    _onUpdate: function() {
         this._cVolume = this._getVolume();
         this._updateIcon(this._cVolume);
         this.pup.setValue(Number(this._cVolume) / 100);
         return true;
-	},
-	
-	destroy: function() {
-	    this.parent();
-	    Mainloop.source_remove(this._timeoutId);
-	    this.actor.disconnect(this._onScrollId);
-	    this.pup.disconnect(this._onSliderId);
-	},
+    },
+    
+    destroy: function() {
+        this.parent();
+        Mainloop.source_remove(this._timeoutId);
+        this.actor.disconnect(this._onScrollId);
+        this.pup.disconnect(this._onSliderId);
+    },
 });
 
 function init() {
