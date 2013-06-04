@@ -28,7 +28,10 @@ const GLib = imports.gi.GLib;
 const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
 
-const VOLUME_STEP = 5; // Step on scroll, and olny on scroll
+// Step on scroll, and olny on scroll
+const VOLUME_STEP = 5; 
+// Mixer element to control, for example 'Master Surround'
+const MIXER_ELEMENT = 'Master';
 
 const AlsaMixer = new Lang.Class({
     Name: 'AlsaMixer',
@@ -60,7 +63,8 @@ const AlsaMixer = new Lang.Class({
     },
     
     _getVolume: function() {
-        let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Master');
+        let cmd = GLib.spawn_command_line_sync(
+                'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
         let re = /\[(\d{1,2})\%\]/m;
         let values = re.exec(cmd[1]);
 
@@ -69,7 +73,7 @@ const AlsaMixer = new Lang.Class({
     
     _setVolume: function(value) {
         let cmd = GLib.spawn_command_line_async(
-                'amixer -q set Master %s %%'.format(value));
+                'amixer -q set %s %s %%'.format(MIXER_ELEMENT, value));
         
         this._cVolume = value;
         
