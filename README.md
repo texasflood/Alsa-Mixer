@@ -21,4 +21,7 @@ rm -rf Alsa-Mixer/
 
 Copyright © 2012, 2013 - Victor Aurélio Santos
 
+This is an updated version with a bug fix, the original code was written by Victor Aurélio Santos.
+The bug fix is related to a corner case, when the volume reaches 100%, the extension crashes as the regular expression does not handle three digits. In normal use, when the volume reaches 100%, the volume controller crashes. I have also added a simple mute detector.
+
 License GPLv3
