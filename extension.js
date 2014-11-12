@@ -64,10 +64,16 @@ const AlsaMixer = new Lang.Class({
     
     _getVolume: function() {
         let cmd = GLib.spawn_command_line_sync(
-                'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
-        let re = /\[(\d{1,2})\%\]/m;
+            'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
+        var op = String(cmd[1]);
+        op = (op.slice(-3))[0];
+        var muted = (op === "f");
+        if (muted)
+        {
+          return 0;
+        }
+        let re = /\[(\d{1,3})\%\]/m;
         let values = re.exec(cmd[1]);
-
         return values[1];
     },
     
