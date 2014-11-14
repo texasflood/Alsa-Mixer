@@ -29,7 +29,7 @@ const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
 
 // Step on scroll, and olny on scroll
-const VOLUME_STEP = 5; 
+const VOLUME_STEP = 4; 
 // Mixer element to control, for example 'Master Surround'
 const MIXER_ELEMENT = 'Master';
 
@@ -53,7 +53,7 @@ const AlsaMixer = new Lang.Class({
         this._muted = this._cVolume < 1 ? true : false;
         this._updateIcon(this._cVolume);
         
-        this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 100);
+        this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 64);
         this._onSliderId = this.pup.connect('value-changed',
                 Lang.bind(this, this._onSlider));
         this.menu.addMenuItem(this.pup);
@@ -74,7 +74,16 @@ const AlsaMixer = new Lang.Class({
         }
         let re = /\[(\d{1,3})\%\]/m;
         let values = re.exec(cmd[1]);
-        return values[1];
+        return Math.round((values[1]*(64.0/100.0)));
+    },
+
+    _getMute: function() {
+        let cmd = GLib.spawn_command_line_sync(
+            'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
+        var op = String(cmd[1]);
+        op = (op.slice(-3))[0];
+        var muted = (op === "f");
+        return muted;
     },
     
     _setVolume: function(value) {
@@ -99,7 +108,7 @@ const AlsaMixer = new Lang.Class({
         if (volume < 1) {
             rvalue = 'audio-volume-muted';
         } else {
-            let num = Math.floor(3 * volume / 100) + 1;
+            let num = Math.floor(3 * volume / 64) + 1;
 
             if (num >= 3)
                 rvalue = 'audio-volume-high';
@@ -112,6 +121,10 @@ const AlsaMixer = new Lang.Class({
     },
     
     _onScroll: function(widget, event) {
+        if (this._getMute())
+        {
+          return;
+        }
         let di = event.get_scroll_direction();
         
         if (di == Clutter.ScrollDirection.DOWN
@@ -121,24 +134,28 @@ const AlsaMixer = new Lang.Class({
                 && Number(this._cVolume) <= VOLUME_STEP) {
             this._setVolume(0);
         } else if(di == Clutter.ScrollDirection.UP
-                && Number(this._cVolume) < 100 - VOLUME_STEP) {
+                && Number(this._cVolume) < 64 - VOLUME_STEP) {
             this._setVolume(Number(this._cVolume) + VOLUME_STEP);
         } else if(di == Clutter.ScrollDirection.UP
-                && Number(this._cVolume) >= 100 - VOLUME_STEP) {
-            this._setVolume(100);
+                && Number(this._cVolume) >= 64 - VOLUME_STEP) {
+            this._setVolume(64);
         }
-        this.pup.setValue(Number(this._cVolume) / 100);
+        this.pup.setValue(Number(this._cVolume) / 64);
     },
     
     _onSlider: function(slider, value) {
-        let volume = value * 100;
+        if (this._getMute())
+        {
+          return;
+        }
+        let volume = value * 64;
         this._setVolume(volume);
     },
     
     _onUpdate: function() {
         this._cVolume = this._getVolume();
         this._updateIcon(this._cVolume);
-        this.pup.setValue(Number(this._cVolume) / 100);
+        this.pup.setValue(Number(this._cVolume) / 64);
         return true;
     },
     
