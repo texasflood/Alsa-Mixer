@@ -121,10 +121,7 @@ const AlsaMixer = new Lang.Class({
     },
     
     _onScroll: function(widget, event) {
-        if (this._getMute())
-        {
-          return;
-        }
+        
         let di = event.get_scroll_direction();
         
         if (di == Clutter.ScrollDirection.DOWN
@@ -140,18 +137,23 @@ const AlsaMixer = new Lang.Class({
                 && Number(this._cVolume) >= 64 - VOLUME_STEP) {
             this._setVolume(64);
         }
+        if (this._getMute() && this._cVolume != 0)
+        {
+          GLib.spawn_command_line_async(
+              'amixer -q set %s unmute '.format(MIXER_ELEMENT, value));
+        }
         this.pup.setValue(Number(this._cVolume) / 64);
     },
     
     _onSlider: function(slider, value) {
-        if (this._getMute())
-        {
-          this.pup.setValue(0);
-          return;
-        }
-        let volume = Math.round(value * 64);
-        this.pup.setValue(volume/64.0);
-        this._setVolume(volume);
+      let volume = Math.round(value * 64);
+      this.pup.setValue(volume/64.0);
+      if (this._getMute() && value != 0)
+      {
+        GLib.spawn_command_line_async(
+            'amixer -q set %s unmute '.format(MIXER_ELEMENT, value));
+      }
+      this._setVolume(volume);
     },
     
     _onUpdate: function() {
