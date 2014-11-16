@@ -103,7 +103,7 @@ const AlsaMixer = new Lang.Class({
 
     this._cVolume = value;
     var muted = this._getMute();
-    if (value != 0 || muted)
+    if (value != 0 && muted)
     {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
