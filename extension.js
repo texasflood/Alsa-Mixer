@@ -161,14 +161,12 @@ const AlsaMixer = new Lang.Class({
       this.muteMenuItem.setToggleState(false);
     }
     this.pup.setValue(Number(this._cVolume) / 64);
-    this._onUpdate();
   },
 
   _onSlider: function(slider, value) {
     let volume = Math.round(value * 64);
     this.pup.setValue(volume/64.0);
     this._setVolume(volume);
-    this._onUpdate();
   },
 
   _onUpdate: function() {
