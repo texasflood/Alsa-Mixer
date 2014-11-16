@@ -83,18 +83,27 @@ const AlsaMixer = new Lang.Class({
   _getVolume: function() {
     let cmd = GLib.spawn_command_line_sync(
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
-    let re = /\[(\d{1,3})\%\]/m;
+    let re = /(\d{1,2})\s\[\d{1,3}\%\]/m; 
     let values = re.exec(cmd[1]);
-    return Math.round((values[1]*(64.0/100.0)));
+    if (values[1] === null)
+    {
+      global.log("Error - regex failed in _getVolume");
+      return 0;
+    }
+    return Number(values[1]);
   },
 
   _getMute: function() {
     let cmd = GLib.spawn_command_line_sync(
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
-    var op = String(cmd[1]);
-    op = (op.slice(-3))[0];
-    var muted = (op === "f");
-    return muted;
+    let re = /\[(on|off)\]/m;
+    let values = re.exec(cmd[1]);
+    if (values[1] === null)
+    {
+      global.log("Error - regex failed in _getMute");
+      return false;
+    }
+    return (values[1] === "off");
   },
 
   _setVolume: function(value) {
