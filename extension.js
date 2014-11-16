@@ -107,6 +107,7 @@ const AlsaMixer = new Lang.Class({
     {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
+      this.muteMenuItem.setToggleState (true);
       muted = false;
     }
 
