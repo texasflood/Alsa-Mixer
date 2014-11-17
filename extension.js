@@ -153,16 +153,16 @@ const AlsaMixer = new Lang.Class({
 
     let di = event.get_scroll_direction();
 
-    if (di == Clutter.ScrollDirection.DOWN
+    if ((di == Clutter.ScrollDirection.DOWN)
         && Number(this._cVolume) > VOLUME_STEP) {
       this._setVolume(Number(this._cVolume) - VOLUME_STEP);
-    } else if (di == Clutter.ScrollDirection.DOWN
+    } else if((di == Clutter.ScrollDirection.DOWN)
         && Number(this._cVolume) <= VOLUME_STEP) {
       this._setVolume(0);
-    } else if(di == Clutter.ScrollDirection.UP
+    } else if((di == Clutter.ScrollDirection.UP)
         && Number(this._cVolume) < 64 - VOLUME_STEP) {
       this._setVolume(Number(this._cVolume) + VOLUME_STEP);
-    } else if(di == Clutter.ScrollDirection.UP
+    } else if((di == Clutter.ScrollDirection.UP)
         && Number(this._cVolume) >= 64 - VOLUME_STEP) {
       this._setVolume(64);
     }
