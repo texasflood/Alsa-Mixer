@@ -53,14 +53,14 @@ const AlsaMixer = new Lang.Class({
     this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
 
-    this.muteMenuItem = new PopupMenu.PopupSwitchMenuItem(_("Sound"), !this._muted, { reactive: true });
-    this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
-    this.menu.addMenuItem(this.muteMenuItem);
-
     this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 64);
     this._onSliderId = this.pup.connect('value-changed',
         Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
+
+    this.muteMenuItem = new PopupMenu.PopupSwitchMenuItem(_("Sound"), !this._muted, { reactive: true });
+    this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
+    this.menu.addMenuItem(this.muteMenuItem);
 
     this._timeoutId = Mainloop.timeout_add_seconds(1,
         Lang.bind(this, this._onUpdate));
