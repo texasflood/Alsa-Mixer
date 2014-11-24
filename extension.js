@@ -27,6 +27,8 @@ const Clutter = imports.gi.Clutter;
 const GLib = imports.gi.GLib;
 const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Widget = Me.imports.widget;
 
 // Step on scroll, and olny on scroll
 const VOLUME_STEP = 4; 
@@ -53,7 +55,7 @@ const AlsaMixer = new Lang.Class({
     this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
 
-    this.pup = new PopupMenu.PopupSliderMenuItem(this._cVolume / 64);
+    this.pup = new Widget.SliderItem(String(this._cVolume), this._cVolume / 64);
     this._onSliderId = this.pup.connect('value-changed',
         Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
@@ -184,6 +186,7 @@ const AlsaMixer = new Lang.Class({
     this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
     this.pup.setValue(Number(this._cVolume) / 64);
+    this.pup.setLabel (String(this._cVolume));
     this.muteMenuItem.setToggleState(!this._muted);
     return true;
   },
