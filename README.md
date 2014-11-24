@@ -20,6 +20,8 @@ cp Alsa-Mixer/metadata.json ~/.local/share/gnome-shell/extensions/alsaVolbar\@te
 rm -rf Alsa-Mixer/
 </pre>
 
+And then restart the Gnome shell
+
 This is an updated version with a bug fix, the original code was written by Victor Aurélio Santos.
 The bug fix is related to a corner case, when the volume reaches 100%, the extension crashes as the regular expression does not handle three digits. In normal use, when the volume reaches 100%, the volume controller crashes. I have also added a simple mute detector.
 
