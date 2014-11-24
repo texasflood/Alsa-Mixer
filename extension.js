@@ -116,7 +116,15 @@ const AlsaMixer = new Lang.Class({
         'amixer -q set %s %s %%'.format(MIXER_ELEMENT, value));
 
     this._cVolume = value;
-    this._pVolume = Math.round(value * (100.0/64.0));
+    this._pVolume = value * (100.0/64.0); 
+    if (this._pVolume % 1 == 0.5)
+    {
+      this._pVolume = Math.floor(this._pVolume); //Amixer rounds down when halfway
+    }
+    else
+    {
+      this._pVolume = Math.round(this._pVolume);
+    }
     this.pup.setLabel (this._pVolume);
     var muted = this._getMute();
     if (value != 0 && muted)
