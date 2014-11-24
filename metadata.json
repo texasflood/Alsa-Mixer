@@ -1,8 +1,8 @@
 {
     "shell-version": ["3.4.2","3.6.0","3.6.1","3.6.2"], 
-    "uuid": "Alsa-Mixer@so-dicas.info", 
+    "uuid": "alsaVolbar@texasflood.github.com", 
     "name": "Alsa Mixer", 
     "original-author": "texasflood",
     "url": "https://github.com/texasflood/Alsa-Mixer/", 
-    "description": "Control ALSA output(Master) volume."
+    "description": "Control ALSA output (Master) volume."
 }

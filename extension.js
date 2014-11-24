@@ -64,8 +64,8 @@ const AlsaMixer = new Lang.Class({
 
     this.muteMenuItem = new PopupMenu.PopupSwitchMenuItem(_("Sound"), !this._muted, { reactive: true });
     this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
-    this.muteMenuItem.setColumnWidths[0] = 1;
-    //this.menu.addMenuItem(this.muteMenuItem);
+
+    this.menu.addMenuItem(this.muteMenuItem);
 
     this._timeoutId = Mainloop.timeout_add_seconds(1,
         Lang.bind(this, this._onUpdate));
@@ -95,7 +95,6 @@ const AlsaMixer = new Lang.Class({
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
-    global.log (values[2]);
     return [Number(values[1]), Number(values[2])];
   },
 
