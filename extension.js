@@ -50,19 +50,22 @@ const AlsaMixer = new Lang.Class({
 
     this._onScrollId = this.actor.connect('scroll-event',
         Lang.bind(this, this._onScroll));
-
-    this._cVolume = this._getVolume();
+    
+    var vols = this._getVolume();
+    this._cVolume = vols[0];
+    this._pVolume = vols[1]
     this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
 
-    this.pup = new Widget.SliderItem(String(this._cVolume), this._cVolume / 64);
+    this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)) , this._cVolume / 64);
     this._onSliderId = this.pup.connect('value-changed',
         Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
     this.muteMenuItem = new PopupMenu.PopupSwitchMenuItem(_("Sound"), !this._muted, { reactive: true });
     this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
-    this.menu.addMenuItem(this.muteMenuItem);
+    this.muteMenuItem.setColumnWidths[0] = 1;
+    //this.menu.addMenuItem(this.muteMenuItem);
 
     this._timeoutId = Mainloop.timeout_add_seconds(1,
         Lang.bind(this, this._onUpdate));
@@ -85,14 +88,15 @@ const AlsaMixer = new Lang.Class({
   _getVolume: function() {
     let cmd = GLib.spawn_command_line_sync(
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
-    let re = /(\d{1,2})\s\[\d{1,3}\%\]/m; 
+    let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m; 
     let values = re.exec(cmd[1]);
     if (values[1] === null)
     {
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
-    return Number(values[1]);
+    global.log (values[2]);
+    return [Number(values[1]), Number(values[2])];
   },
 
   _getMute: function() {
@@ -113,6 +117,8 @@ const AlsaMixer = new Lang.Class({
         'amixer -q set %s %s %%'.format(MIXER_ELEMENT, value));
 
     this._cVolume = value;
+    this._pVolume = Math.round(value * (100.0/64.0));
+    this.pup.setLabel (this._pVolume);
     var muted = this._getMute();
     if (value != 0 && muted)
     {
@@ -172,7 +178,7 @@ const AlsaMixer = new Lang.Class({
     {
       this.muteMenuItem.setToggleState(false);
     }
-    this.pup.setValue(Number(this._cVolume) / 64);
+    this.pup.setValue(this._cVolume / 64);
   },
 
   _onSlider: function(slider, value) {
@@ -182,11 +188,13 @@ const AlsaMixer = new Lang.Class({
   },
 
   _onUpdate: function() {
-    this._cVolume = this._getVolume();
+    var vols = this._getVolume();
+    this._cVolume = vols[0];
+    this._pVolume = vols[1];
     this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
     this.pup.setValue(Number(this._cVolume) / 64);
-    this.pup.setLabel (String(this._cVolume));
+    this.pup.setLabel (this._pVolume);
     this.muteMenuItem.setToggleState(!this._muted);
     return true;
   },
