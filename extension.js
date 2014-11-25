@@ -62,7 +62,7 @@ const AlsaMixer = new Lang.Class({
         Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
-    this.muteMenuItem = new PopupMenu.PopupSwitchMenuItem(_("Sound"), !this._muted, { reactive: true });
+    this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
     this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
 
     this.menu.addMenuItem(this.muteMenuItem);
@@ -86,6 +86,7 @@ const AlsaMixer = new Lang.Class({
       this._muted = false;
       this._updateIcon (this._cVolume, false);
     }
+    GLib.spawn_command_line_async('gnome-terminal -x sh -c "alsamixer"');
   }, 
 
   _getVolume: function() {
