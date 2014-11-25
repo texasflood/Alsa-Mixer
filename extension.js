@@ -76,13 +76,16 @@ const AlsaMixer = new Lang.Class({
     {
       GLib.spawn_command_line_async(
           'amixer -q set %s mute '.format(MIXER_ELEMENT));
+      this._muted = true;
+      this._updateIcon (0, true);
     }
     else if (event == true)
     {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
+      this._muted = false;
+      this._updateIcon (this._cVolume, false);
     }
-    this._onUpdate();
   }, 
 
   _getVolume: function() {
