@@ -66,9 +66,16 @@ const AlsaMixer = new Lang.Class({
     this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
 
     this.menu.addMenuItem(this.muteMenuItem);
+    this.alsamixer = new PopupMenu.PopupMenuItem ("Alsamixer", {reactive: true});
+    this.alsamixer.connect('activate', Lang.bind(this, this._openAlsamixer));
+    this.menu.addMenuItem(this.alsamixer);
 
     this._timeoutId = Mainloop.timeout_add_seconds(1,
         Lang.bind(this, this._onUpdate));
+  },
+
+  _openAlsamixer: function(actor, event) {
+    GLib.spawn_command_line_async('gnome-terminal -x sh -c "alsamixer"');
   },
 
   _handleMuteMenuItem: function(actor, event) {
@@ -86,7 +93,6 @@ const AlsaMixer = new Lang.Class({
       this._muted = false;
       this._updateIcon (this._cVolume, false);
     }
-    GLib.spawn_command_line_async('gnome-terminal -x sh -c "alsamixer"');
   }, 
 
   _getVolume: function() {

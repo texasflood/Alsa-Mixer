@@ -28,25 +28,18 @@ const SwitchItem = new Lang.Class({
   Extends: PopupMenu.PopupSwitchMenuItem,
 
   _init: function(text, active, params) {
-    this.parent(params);
+    this.parent(text, active, params);
 
-    this.label = new St.Label({ text: text });
-    this._switch = new Switch(active);
+    this.removeActor(this.label);
+    this.removeActor(this._statusBin);
+    this._box = new St.Table({style_class: 'switch-item'});
+    this._label = new St.Label({text: text});
+    this._label.set_width (190);
+    this._box.add(this._label, {row: 0, col: 0, x_expand: true});
+    this._box.add(this._statusBin, {row: 0, col: 1, x_expand: false});
 
-    this.actor.accessible_role = Atk.Role.CHECK_MENU_ITEM;
-    this.checkAccessibleState();
-    this.actor.label_actor = this.label;
+    this.addActor(this._box, {span: -1, expand: false});
 
-    this.addActor(this.label);
-
-    this._statusBin = new St.Bin({ x_align: St.Align.END });
-    this.addActor(this._statusBin,
-        { expand: true, span: -1, align: St.Align.END });
-
-    this._statusLabel = new St.Label({ text: '',
-      style_class: 'popup-inactive-menu-item'
-    });
-    this._statusBin.child = this._switch.actor;
-  },
+  }
 
 });
