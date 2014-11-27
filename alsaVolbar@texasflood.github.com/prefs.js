@@ -46,7 +46,7 @@ function init() {
     },
     showalsamixer: {
       label: _("Show the alsamixer button."),
-      help: _("Default: ON")
+      help: _("Default: OFF")
     },
   };
 }
