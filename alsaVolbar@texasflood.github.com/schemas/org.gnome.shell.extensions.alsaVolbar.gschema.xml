@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="alsaVolbar">
   <schema path="/org/gnome/shell/extensions/alsaVolbar/" id="org.gnome.shell.extensions.alsaVolbar">
+    <key type="b" name="showmute">
+      <default>true</default>
+      <summary>Show the mute button</summary>
+      <description>Default: ON</description>
+    </key>
     <key type="b" name="showalsamixer">
       <default>false</default>
       <summary>Show the alsamixer button</summary>
-      <description>Show the alsamixer button. (default: OFF)</description>
+      <description>Default: OFF</description>
     </key>
   </schema>
 </schemalist>

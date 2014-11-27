@@ -40,9 +40,13 @@ function init() {
   settings = Convenience.getSettings(schema);
 
   boolSettings = {
+    showmute: {
+      label: _("Show the mute button."),
+      help: _("Default: ON")
+    },
     showalsamixer: {
       label: _("Show the alsamixer button."),
-      help: _("Show the alsamixer button. (default: OFF)")
+      help: _("Default: ON")
     },
   };
 }

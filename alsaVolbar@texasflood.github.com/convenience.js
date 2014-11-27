@@ -26,7 +26,7 @@ function getSettings(schema) {
     // otherwise assume that extension has been installed in the
     // same prefix as gnome-shell (and therefore schemas are available
     // in the standard folders)
-    let schemaDir = extension.dir.get_child('schemas');
+    let schemaDir = extension.dir.get_child('alsaVolbar\@texasflood.github.com/schemas');
     let schemaSource;
     if (schemaDir.query_exists(null))
         schemaSource = GioSSS.new_from_directory(schemaDir.get_path(),

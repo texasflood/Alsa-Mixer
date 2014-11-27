@@ -35,8 +35,6 @@ const Convenience = Me.imports.convenience;
 const VOLUME_STEP = 4; 
 // Mixer element to control, for example 'Master Surround'
 const MIXER_ELEMENT = 'Master';
-const alsamixerSetting = 'showalsamixer';
-let settings = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar');
 
 const AlsaMixer = new Lang.Class({
   Name: 'AlsaMixer',
@@ -64,14 +62,17 @@ const AlsaMixer = new Lang.Class({
     this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
-    this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
-    this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
-    this.menu.addMenuItem(this.muteMenuItem);
+    this.showMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showmute');
+    if (this.showMute)
+    {
+      this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
+      this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
+      this.menu.addMenuItem(this.muteMenuItem);
+    }
 
-    let showalsamixer;
-    showalsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean(alsamixerSetting);
+    this.showAlsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showalsamixer');
 
-    if (showalsamixer)
+    if (this.showAlsamixer)
     {
       this.alsamixer = new PopupMenu.PopupMenuItem ("Alsamixer", {reactive: true});
       this.alsamixer.connect('activate', Lang.bind(this, this._openAlsamixer));
@@ -149,7 +150,10 @@ const AlsaMixer = new Lang.Class({
     {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
-      this.muteMenuItem.setToggleState (true);
+      if (this.showMute)
+      {
+        this.muteMenuItem.setToggleState (true);
+      }
       muted = false;
     }
 
@@ -201,7 +205,10 @@ const AlsaMixer = new Lang.Class({
     }
     if (this._getMute() && this._cVolume != 0)
     {
-      this.muteMenuItem.setToggleState(false);
+      if (this.showMute)
+      {
+        this.muteMenuItem.setToggleState(false);
+      }
     }
     this.pup.setValue(this._cVolume / 64);
   },
@@ -220,7 +227,11 @@ const AlsaMixer = new Lang.Class({
     this._updateIcon(this._cVolume, this._muted);
     this.pup.setValue(Number(this._cVolume) / 64);
     this.pup.setLabel (this._pVolume);
-    this.muteMenuItem.setToggleState(!this._muted);
+
+    if (this.showMute)
+    {
+      this.muteMenuItem.setToggleState(!this._muted);
+    }
     return true;
   },
 
