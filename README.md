@@ -10,15 +10,6 @@ cd Alsa-Mixer
 chmod +x install.sh
 ./install.sh
 </pre>
-or detailed installation
-<pre>
-git clone git://github.com/texasflood/Alsa-Mixer.git Alsa-Mixer
-mkdir -p ~/.local/share/gnome-shell/extensions/alsaVolbar\@texasflood.github.com
-cp Alsa-Mixer/extension.js ~/.local/share/gnome-shell/extensions/alsaVolbar\@texasflood.github.com
-cp Alsa-Mixer/widget.js ~/.local/share/gnome-shell/extensions/alsaVolbar\@texasflood.github.com
-cp Alsa-Mixer/metadata.json ~/.local/share/gnome-shell/extensions/alsaVolbar\@texasflood.github.com
-rm -rf Alsa-Mixer/
-</pre>
 
 And then restart the Gnome shell
 

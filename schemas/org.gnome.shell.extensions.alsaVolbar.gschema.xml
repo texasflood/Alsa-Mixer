@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="alsaVolbar">
+  <schema path="/org/gnome/shell/extensions/alsaVolbar/" id="org.gnome.shell.extensions.alsaVolbar">
+    <key type="b" name="showalsamixer">
+      <default>false</default>
+      <summary>Show the alsamixer button</summary>
+      <description>Show the alsamixer button. (default: OFF)</description>
+    </key>
+  </schema>
+</schemalist>

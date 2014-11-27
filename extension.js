@@ -29,11 +29,14 @@ const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Widget = Me.imports.widget;
+const Convenience = Me.imports.convenience;
 
 // Step on scroll, and olny on scroll
 const VOLUME_STEP = 4; 
 // Mixer element to control, for example 'Master Surround'
 const MIXER_ELEMENT = 'Master';
+const alsamixerSetting = 'showalsamixer';
+let settings = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar');
 
 const AlsaMixer = new Lang.Class({
   Name: 'AlsaMixer',
@@ -50,25 +53,30 @@ const AlsaMixer = new Lang.Class({
 
     this._onScrollId = this.actor.connect('scroll-event',
         Lang.bind(this, this._onScroll));
-    
+
     var vols = this._getVolume();
     this._cVolume = vols[0];
     this._pVolume = vols[1]
-    this._muted = this._getMute();
+      this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
 
     this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)) , this._cVolume / 64);
-    this._onSliderId = this.pup.connect('value-changed',
-        Lang.bind(this, this._onSlider));
+    this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
     this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
     this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
-
     this.menu.addMenuItem(this.muteMenuItem);
-    this.alsamixer = new PopupMenu.PopupMenuItem ("Alsamixer", {reactive: true});
-    this.alsamixer.connect('activate', Lang.bind(this, this._openAlsamixer));
-    this.menu.addMenuItem(this.alsamixer);
+
+    let showalsamixer;
+    showalsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean(alsamixerSetting);
+
+    if (showalsamixer)
+    {
+      this.alsamixer = new PopupMenu.PopupMenuItem ("Alsamixer", {reactive: true});
+      this.alsamixer.connect('activate', Lang.bind(this, this._openAlsamixer));
+      this.menu.addMenuItem(this.alsamixer);
+    }
 
     this._timeoutId = Mainloop.timeout_add_seconds(1,
         Lang.bind(this, this._onUpdate));
