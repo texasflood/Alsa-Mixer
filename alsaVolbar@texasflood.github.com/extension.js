@@ -1,23 +1,19 @@
-/* -*- coding: UTF-8; mode: js2; js2-basic-offset: 4 -*- */
 /*
- * Copyright (C) 2012, 2013 Victor Aurélio Santos <victoraur.santos@gmail.com>
- * 
- * This file is part of Alsa-Mixer.
+ * This file is part of Alsa Controller.
  *
- * Alsa Mixer is free software: you can redistribute it and/or modify it
+ * Alsa Controller is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Alsa Mixer is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 const St = imports.gi.St;
 const Lang = imports.lang;
 const Main = imports.ui.main;
@@ -31,9 +27,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Widget = Me.imports.widget;
 const Convenience = Me.imports.convenience;
 
-// Step on scroll, and olny on scroll
-const VOLUME_STEP = 4; 
-// Mixer element to control, for example 'Master Surround'
+const VOLUME_STEP = 4;
 const MIXER_ELEMENT = 'Master';
 
 const AlsaMixer = new Lang.Class({
@@ -54,27 +48,29 @@ const AlsaMixer = new Lang.Class({
 
     var vols = this._getVolume();
     this._cVolume = vols[0];
-    this._pVolume = vols[1]
-      this._muted = this._getMute();
+    this._pVolume = vols[1];
+    this._muted = this._getMute();
     this._updateIcon(this._cVolume, this._muted);
 
-    this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)) , this._cVolume / 64);
+    this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)), this._cVolume / 64);
     this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
     this.showMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showmute');
-    if (this.showMute)
-    {
-      this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
+    if (this.showMute) {
+      this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, {
+        reactive: true
+      });
       this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
       this.menu.addMenuItem(this.muteMenuItem);
     }
 
     this.showAlsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showalsamixer');
 
-    if (this.showAlsamixer)
-    {
-      this.alsamixer = new PopupMenu.PopupMenuItem ("Alsamixer", {reactive: true});
+    if (this.showAlsamixer) {
+      this.alsamixer = new PopupMenu.PopupMenuItem("Alsamixer", {
+        reactive: true
+      });
       this.alsamixer.connect('activate', Lang.bind(this, this._openAlsamixer));
       this.menu.addMenuItem(this.alsamixer);
     }
@@ -88,29 +84,26 @@ const AlsaMixer = new Lang.Class({
   },
 
   _handleMuteMenuItem: function(actor, event) {
-    if (event == false)
-    {
+    if (event == false) {
       GLib.spawn_command_line_async(
           'amixer -q set %s mute '.format(MIXER_ELEMENT));
       this._muted = true;
-      this._updateIcon (0, true);
+      this._updateIcon(0, true);
     }
-    else if (event == true)
-    {
+    else if (event == true) {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
       this._muted = false;
-      this._updateIcon (this._cVolume, false);
+      this._updateIcon(this._cVolume, false);
     }
-  }, 
+  },
 
   _getVolume: function() {
     let cmd = GLib.spawn_command_line_sync(
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
-    let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m; 
+    let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null)
-    {
+    if (values[1] === null) {
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
@@ -122,8 +115,7 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /\[(on|off)\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null)
-    {
+    if (values[1] === null) {
       global.log("Error - regex failed in _getMute");
       return false;
     }
@@ -135,24 +127,20 @@ const AlsaMixer = new Lang.Class({
         'amixer -q set %s %s %%'.format(MIXER_ELEMENT, value));
 
     this._cVolume = value;
-    this._pVolume = value * (100.0/64.0); 
-    if (this._pVolume % 1 == 0.5)
-    {
+    this._pVolume = value * (100 / 64);
+    if (this._pVolume % 1 == 0.5) {
       this._pVolume = Math.floor(this._pVolume); //Amixer rounds down when halfway
     }
-    else
-    {
+    else {
       this._pVolume = Math.round(this._pVolume);
     }
-    this.pup.setLabel (this._pVolume);
+    this.pup.setLabel(this._pVolume);
     var muted = this._getMute();
-    if (value != 0 && muted)
-    {
+    if (value != 0 && muted) {
       GLib.spawn_command_line_async(
           'amixer -q set %s unmute '.format(MIXER_ELEMENT));
-      if (this.showMute)
-      {
-        this.muteMenuItem.setToggleState (true);
+      if (this.showMute) {
+        this.muteMenuItem.setToggleState(true);
       }
       muted = false;
     }
@@ -173,12 +161,13 @@ const AlsaMixer = new Lang.Class({
     let rvalue = 'audio-volume-muted';
     if (volume < 1 || muted) {
       rvalue = 'audio-volume-muted';
-    } else {
-      let num = Math.floor(3 * volume / 64) + 1;
+    }
+    else {
+      let num = Math.floor(volume * 0.046875); //0.046875 = 3/64
 
-      if (num >= 3)
+      if (num >= 2)
         rvalue = 'audio-volume-high';
-      else if(num < 2)
+      else if (num < 1)
         rvalue = 'audio-volume-low';
       else
         rvalue = 'audio-volume-medium';
@@ -190,23 +179,24 @@ const AlsaMixer = new Lang.Class({
 
     let di = event.get_scroll_direction();
 
-    if ((di == Clutter.ScrollDirection.DOWN)
-        && Number(this._cVolume) > VOLUME_STEP) {
-      this._setVolume(Number(this._cVolume) - VOLUME_STEP);
-    } else if((di == Clutter.ScrollDirection.DOWN)
-        && Number(this._cVolume) <= VOLUME_STEP) {
-      this._setVolume(0);
-    } else if((di == Clutter.ScrollDirection.UP)
-        && Number(this._cVolume) < 64 - VOLUME_STEP) {
-      this._setVolume(Number(this._cVolume) + VOLUME_STEP);
-    } else if((di == Clutter.ScrollDirection.UP)
-        && Number(this._cVolume) >= 64 - VOLUME_STEP) {
-      this._setVolume(64);
+    if (di == Clutter.ScrollDirection.DOWN) {
+      if (Number(this._cVolume) > VOLUME_STEP) {
+        this._setVolume(Number(this._cVolume) - VOLUME_STEP);
+      }
+      else {
+        this._setVolume(0);
+      }
     }
-    if (this._getMute() && this._cVolume != 0)
-    {
-      if (this.showMute)
-      {
+    else if (di == Clutter.ScrollDirection.UP) {
+      if (Number(this._cVolume) < 64 - VOLUME_STEP) {
+        this._setVolume(Number(this._cVolume) + VOLUME_STEP);
+      }
+      else {
+        this._setVolume(64);
+      }
+    }
+    if (this._getMute() && this._cVolume != 0) {
+      if (this.showMute) {
         this.muteMenuItem.setToggleState(false);
       }
     }
@@ -215,22 +205,30 @@ const AlsaMixer = new Lang.Class({
 
   _onSlider: function(slider, value) {
     let volume = Math.round(value * 64);
-    this.pup.setValue(volume/64.0);
+    this.pup.setValue(volume / 64);
     this._setVolume(volume);
   },
 
   _onUpdate: function() {
     var vols = this._getVolume();
+    var oldVol = this._pVolume;
+    var oldMute = this._muted;
     this._cVolume = vols[0];
     this._pVolume = vols[1];
     this._muted = this._getMute();
-    this._updateIcon(this._cVolume, this._muted);
-    this.pup.setValue(Number(this._cVolume) / 64);
-    this.pup.setLabel (this._pVolume);
-
-    if (this.showMute)
-    {
-      this.muteMenuItem.setToggleState(!this._muted);
+    if (oldVol != this._pVolume) {
+      this._updateIcon(this._cVolume, this._muted);
+      this.pup.setValue(Number(this._cVolume) / 64);
+      this.pup.setLabel(this._pVolume);
+      if (this.showMute) {
+        this.muteMenuItem.setToggleState(!this._muted);
+      }
+    }
+    else if (oldMute != this._muted) {
+      this._updateIcon(this._cVolume, this._muted);
+      if (this.showMute) {
+        this.muteMenuItem.setToggleState(!this._muted);
+      }
     }
     return true;
   },

@@ -1,21 +1,25 @@
 const Gtk = imports.gi.Gtk;
 const Lang = imports.lang;
-
 const Gettext = imports.gettext.domain('alsaVolbar');
 const _ = Gettext.gettext;
-
 const Convenience = imports.misc.extensionUtils.getCurrentExtension().imports.convenience;
 
 let settings;
 let boolSettings;
 
 function _createBoolSetting(setting) {
-  let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+  let hbox = new Gtk.Box({
+    orientation: Gtk.Orientation.HORIZONTAL
+  });
 
-  let settingLabel = new Gtk.Label({label: boolSettings[setting].label,
-                                    xalign: 0});
+  let settingLabel = new Gtk.Label({
+    label: boolSettings[setting].label,
+    xalign: 0
+  });
 
-  let settingSwitch = new Gtk.Switch({active: settings.get_boolean(setting)});
+  let settingSwitch = new Gtk.Switch({
+    active: settings.get_boolean(setting)
+  });
   settingSwitch.connect('notify::active', function(button) {
     settings.set_boolean(setting, button.active);
   });
@@ -33,7 +37,7 @@ function _createBoolSetting(setting) {
 
 /*
    Shell-extensions handlers
-*/
+   */
 
 function init() {
   let schema = 'org.gnome.shell.extensions.alsaVolbar';
@@ -52,10 +56,15 @@ function init() {
 }
 
 function buildPrefsWidget() {
-  let frame = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL,
-                           border_width: 10});
-  let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL,
-                          margin: 20, margin_top: 10});
+  let frame = new Gtk.Box({
+    orientation: Gtk.Orientation.VERTICAL,
+    border_width: 10
+  });
+  let vbox = new Gtk.Box({
+    orientation: Gtk.Orientation.VERTICAL,
+    margin: 20,
+    margin_top: 10
+  });
 
   // Add all bool settings
   for (setting in boolSettings) {
@@ -68,4 +77,3 @@ function buildPrefsWidget() {
 
   return frame;
 }
-
