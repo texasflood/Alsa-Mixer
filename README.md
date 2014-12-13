@@ -7,6 +7,7 @@ run install.sh (recommended)
 <pre>
 git clone git://github.com/texasflood/Alsa-Mixer.git Alsa-Mixer
 cd Alsa-Mixer
+chmod u+x #You may or may not need to do this
 ./install.sh
 </pre>
 
