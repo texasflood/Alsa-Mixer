@@ -3,7 +3,7 @@ Alsa-Mixer
 Alsa-Mixer is a gnome-shell extension to control ALSA output (Master) volume.
 
 <h3> Installation </h3>
-run install.sh (recommended)
+run install.sh or install from https://extensions.gnome.org/extension/903/alsa-volume-bar/
 <pre>
 git clone git://github.com/texasflood/Alsa-Mixer.git Alsa-Mixer
 cd Alsa-Mixer
