@@ -50,6 +50,7 @@ const AlsaMixer = new Lang.Class({
     this._cVolume = vols[0];
     this._pVolume = vols[1];
     this._muted = this._getMute();
+    this._autoMuted = this._getAutoMute();
     this._updateIcon(this._cVolume, this._muted);
 
     this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)), this._cVolume / 64);
@@ -58,11 +59,16 @@ const AlsaMixer = new Lang.Class({
 
     this.showMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showmute');
     if (this.showMute) {
-      this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, {
-        reactive: true
-      });
+      this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
       this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
       this.menu.addMenuItem(this.muteMenuItem);
+    }
+
+    this.showAutoMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showautomute');
+    if (this.showAutoMute) {
+      this.autoMuteMenuItem = new Widget.SwitchItem("Auto Mute", this._autoMuted, { reactive: true });
+      this.autoMuteMenuItem.connect('toggled', Lang.bind(this, this._handleAutoMuteMenuItem));
+      this.menu.addMenuItem(this.autoMuteMenuItem);
     }
 
     this.showAlsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showalsamixer');
@@ -98,6 +104,17 @@ const AlsaMixer = new Lang.Class({
     }
   },
 
+  _handleAutoMuteMenuItem: function(actor, event) {
+    if (event == false) {
+      GLib.spawn_command_line_async( 'amixer -q set Auto-Mute\\ Mode Disabled');
+      this._autoMuted = true;
+    }
+    else if (event == true) {
+      GLib.spawn_command_line_async( 'amixer -q set Auto-Mute\\ Mode Enabled');
+      this._autoMuted = false;
+    }
+  },
+
   _getVolume: function() {
     let cmd = GLib.spawn_command_line_sync(
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
@@ -120,6 +137,18 @@ const AlsaMixer = new Lang.Class({
       return false;
     }
     return (values[1] === "off");
+  },
+
+  _getAutoMute: function() {
+    let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Auto-Mute\\ Mode');
+    global.log(cmd[1]);
+    let re = /Item0: '(Disabled|Enabled)'/m;
+    let values = re.exec(cmd[1]);
+    if (values[1] === null) {
+      global.log("Error - regex failed in _getAutoMute");
+      return false;
+    }
+    return (values[1] === "Enabled");
   },
 
   _setVolume: function(value) {
@@ -229,6 +258,10 @@ const AlsaMixer = new Lang.Class({
       if (this.showMute) {
         this.muteMenuItem.setToggleState(!this._muted);
       }
+    }
+    if (this.showAutoMute) {
+      this._autoMuted = this._getAutoMute();
+      this.autoMuteMenuItem.setToggleState(this._autoMuted);
     }
     return true;
   },

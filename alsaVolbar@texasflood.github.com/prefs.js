@@ -52,6 +52,10 @@ function init() {
       label: _("Show the alsamixer button."),
       help: _("Default: OFF")
     },
+    showautomute: {
+      label: _("Show the auto mute button."),
+      help: _("Default: OFF")
+    },
   };
 }
 

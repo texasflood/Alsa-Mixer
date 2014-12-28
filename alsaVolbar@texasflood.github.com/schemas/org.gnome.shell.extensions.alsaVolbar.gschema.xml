@@ -11,5 +11,10 @@
       <summary>Show the alsamixer button</summary>
       <description>Default: OFF</description>
     </key>
+    <key type="b" name="showautomute">
+      <default>false</default>
+      <summary>Show the auto mute button</summary>
+      <description>Default: OFF</description>
+    </key>
   </schema>
 </schemalist>
