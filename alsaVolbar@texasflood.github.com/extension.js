@@ -120,7 +120,7 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values === null || values[1] === null) {
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
@@ -132,7 +132,7 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /\[(on|off)\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values === null || values[1] === null) {
       global.log("Error - regex failed in _getMute");
       return false;
     }
@@ -144,7 +144,7 @@ const AlsaMixer = new Lang.Class({
     global.log(cmd[1]);
     let re = /Item0: '(Disabled|Enabled)'/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values === null || values[1] === null) {
       global.log("Error - regex failed in _getAutoMute");
       return false;
     }
