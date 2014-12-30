@@ -37,6 +37,9 @@ const AlsaMixer = new Lang.Class({
   _init: function() {
     this.parent('audio-volume-medium', _('Volume'));
 
+    this.showAutoMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showautomute');
+    this.showMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showmute');
+    this.showAlsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showalsamixer');
     this.statusIcon = new St.Icon({
       icon_name: 'audio-volume-medium',
       style_class: 'status-icon'
@@ -50,28 +53,27 @@ const AlsaMixer = new Lang.Class({
     this._cVolume = vols[0];
     this._pVolume = vols[1];
     this._muted = this._getMute();
-    this._autoMuted = this._getAutoMute();
     this._updateIcon(this._cVolume, this._muted);
+    if (this.showAutoMute) {
+      this._autoMuted = this._getAutoMute();
+    }
 
     this.pup = new Widget.SliderItem("   ".concat(String(this._pVolume)), this._cVolume / 64);
     this._onSliderId = this.pup.connect('value-changed', Lang.bind(this, this._onSlider));
     this.menu.addMenuItem(this.pup);
 
-    this.showMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showmute');
     if (this.showMute) {
       this.muteMenuItem = new Widget.SwitchItem("Sound", !this._muted, { reactive: true });
       this.muteMenuItem.connect('toggled', Lang.bind(this, this._handleMuteMenuItem));
       this.menu.addMenuItem(this.muteMenuItem);
     }
 
-    this.showAutoMute = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showautomute');
     if (this.showAutoMute) {
       this.autoMuteMenuItem = new Widget.SwitchItem("Auto Mute", this._autoMuted, { reactive: true });
       this.autoMuteMenuItem.connect('toggled', Lang.bind(this, this._handleAutoMuteMenuItem));
       this.menu.addMenuItem(this.autoMuteMenuItem);
     }
 
-    this.showAlsamixer = Convenience.getSettings('org.gnome.shell.extensions.alsaVolbar').get_boolean('showalsamixer');
 
     if (this.showAlsamixer) {
       this.alsamixer = new PopupMenu.PopupMenuItem("Alsamixer", {
@@ -120,7 +122,7 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values[1] === null || values === null) {
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
@@ -132,7 +134,7 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /\[(on|off)\]/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values[1] === null || values === null) {
       global.log("Error - regex failed in _getMute");
       return false;
     }
@@ -141,10 +143,9 @@ const AlsaMixer = new Lang.Class({
 
   _getAutoMute: function() {
     let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Auto-Mute\\ Mode');
-    global.log(cmd[1]);
     let re = /Item0: '(Disabled|Enabled)'/m;
     let values = re.exec(cmd[1]);
-    if (values[1] === null) {
+    if (values[1] === null || values === null) {
       global.log("Error - regex failed in _getAutoMute");
       return false;
     }
