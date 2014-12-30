@@ -122,7 +122,11 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /(\d{1,2})\s\[(\d{1,3})\%\]/m;
     let values = re.exec(cmd[1]);
+<<<<<<< HEAD
     if (values[1] === null || values === null) {
+=======
+    if (values === null || values[1] === null) {
+>>>>>>> 5f384659574467f690840fca9eaafc5b73079832
       global.log("Error - regex failed in _getVolume");
       return 0;
     }
@@ -134,7 +138,11 @@ const AlsaMixer = new Lang.Class({
         'env LANG=C amixer get %s'.format(MIXER_ELEMENT));
     let re = /\[(on|off)\]/m;
     let values = re.exec(cmd[1]);
+<<<<<<< HEAD
     if (values[1] === null || values === null) {
+=======
+    if (values === null || values[1] === null) {
+>>>>>>> 5f384659574467f690840fca9eaafc5b73079832
       global.log("Error - regex failed in _getMute");
       return false;
     }
@@ -145,7 +153,11 @@ const AlsaMixer = new Lang.Class({
     let cmd = GLib.spawn_command_line_sync('env LANG=C amixer get Auto-Mute\\ Mode');
     let re = /Item0: '(Disabled|Enabled)'/m;
     let values = re.exec(cmd[1]);
+<<<<<<< HEAD
     if (values[1] === null || values === null) {
+=======
+    if (values === null || values[1] === null) {
+>>>>>>> 5f384659574467f690840fca9eaafc5b73079832
       global.log("Error - regex failed in _getAutoMute");
       return false;
     }
