@@ -172,7 +172,7 @@ const AlsaMixer = new Lang.Class({
       if (this.showMute) {
         this.muteMenuItem.setToggleState(true);
       }
-      muted = false;
+      this._muted = false;
     }
 
     this._updateIcon(value, false);
