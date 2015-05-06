@@ -13,9 +13,11 @@ chmod u+x install.sh #You may or may not need to do this
 
 And then restart the Gnome shell
 
-This is an updated version with a bug fix, the original code was written by Victor Aurélio Santos.
+This is an updated version with a bug fix and several new features and improvements, the original code was written by Victor Aurélio Santos.
 The bug fix is related to a corner case, when the volume reaches 100%, the extension crashes as the regular expression does not handle three digits. In normal use, when the volume reaches 100%, the volume controller crashes. I have also added a simple mute detector.
 
 To mute/unmute without closing the menu, toggle the Sound switch with the spacebar.
+
+This is not being maintained any more.
 
 License GPLv3
